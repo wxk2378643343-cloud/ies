@@ -190,3 +190,27 @@ locust -f tests/performance/locustfile.py --host=http://localhost:8000
 运行后端后访问：`http://localhost:8000/docs`（Swagger UI 自动生成）
 
 详细接口说明见 [docs/api/README.md](docs/api/README.md)
+
+
+## Docker 本地部署
+
+需要 Docker 和 Compose v2。在仓库根目录创建 `.env`，填写以下变量。
+
+```dotenv
+SECRET_KEY=replace_with_a_long_random_value
+APP_PORT=5173
+```
+
+```sh
+docker compose config --quiet
+docker compose up -d --build
+docker compose exec backend python -m database.seeds.generate_mock_data
+docker compose exec backend python -m ml.training.trainer --epochs 20
+docker compose ps
+```
+
+打开 [http://localhost:5173](http://localhost:5173)，API 文档位于 [http://localhost:5173/docs](http://localhost:5173/docs)。
+
+镜像使用 CPU 版 PyTorch。`database` 和 `models` 数据卷分别保存 SQLite 与模型文件。生成脚本用于初始化演示数据，请在新测试数据卷上运行。模型训练可在进入页面后独立运行，耗时取决于 CPU。
+
+使用 `docker compose logs --tail=100` 查看日志。使用 `docker compose down` 停止服务并保留数据卷。

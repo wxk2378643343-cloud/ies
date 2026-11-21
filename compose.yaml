@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      DATABASE_URL: sqlite:///./database/data/ies.db
+    volumes:
+      - database:/app/database/data
+      - models:/app/ml/checkpoints
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:${APP_PORT:-5173}:80"
+
+volumes:
+  database:
+  models:
