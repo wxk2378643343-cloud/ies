@@ -140,3 +140,19 @@ locust -f tests/performance/locustfile.py --host=http://localhost:8000
 运行后端后访问：`http://localhost:8000/docs`（Swagger UI 自动生成）
 
 详细接口说明见 [docs/api/README.md](docs/api/README.md)
+
+---
+## ✨ 核心算法与工程亮点
+
+1. **为什么采用「行为加权 + 2 层 LSTM + Self-Attention」？**
+   - **差异化行为信号建模**：将 `collect(3) / read(2) / click(1)` 显式转化为动作权重乘入 64 维内容 Embedding，避免把偶然误点与深度收藏混为一谈；
+   - **时序兴趣演化捕捉**：采用 2 层 LSTM（`hidden=128, dropout=0.2`）对用户最近 20 条行为序列建模，自然捕获兴趣随时间的迁移与衰减；
+   - **Self-Attention 聚焦高价值时刻**：对 LSTM 各时间步输出动态分配注意力权重，突出近期关键交互对当前偏好的决定性影响，提升 Top-N 推荐相关度。
+2. **端到端可观测的推荐闭环**：推理结果不仅写回 `interest_tags` 驱动实时推荐，还沉淀 `model_results` 推理快照与 `model_train_logs`（`loss / accuracy / NDCG`），支持前端直观展示用户兴趣演化轨迹。
+3. **高标准工程验证体系**：内置 60 个自动化测试（28 个单元测试 + 32 个集成测试）与 Locust 性能压测脚本，支持 Docker Compose 一键拉起模拟数据生成、模型训练与在线推理全流程。
+
+---
+
+## 📄 开源许可证
+
+本项目基于 [MIT License](LICENSE) 开源，详见根目录 [LICENSE](LICENSE) 文件。
